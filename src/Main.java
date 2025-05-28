@@ -3,6 +3,8 @@ import java.awt.*;
 import java.awt.event.*;
 import screens.MainFrame;
 
+// test
+
 public class Main {
 
     // 테스트 코드 작성
