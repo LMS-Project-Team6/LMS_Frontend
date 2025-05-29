@@ -75,6 +75,9 @@ public class LoginScreen extends JPanel {
         loginButton = new RoundedButton("로그인");
         loginButton.setFont(new Font("SansSerif", Font.BOLD, 16));
         loginButton.setMaximumSize(wideSize);
+        loginButton.setPreferredSize(wideSize);
+        loginButton.setMinimumSize(wideSize);
+        loginButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // ✅ 로그인 버튼 이벤트 처리
         loginButton.addActionListener(e -> {
@@ -92,7 +95,7 @@ public class LoginScreen extends JPanel {
                     LibModel.getInstance().setLoggedInLib(lib);
 
                     // ✅ MenuScreen을 새로 생성해서 container에 등록
-                    MenuScreen menuScreen = new MenuScreen();
+                    MenuScreen menuScreen = new MenuScreen(cardLayout, container);
                     container.add(menuScreen, "MenuScreen");
 
                     // ✅ 새로 생성한 MenuScreen으로 화면 전환
