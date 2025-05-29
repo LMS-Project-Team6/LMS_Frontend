@@ -10,6 +10,7 @@ public class MainFrame extends JPanel {
 
         // LoginScreen과 JoinScreen을 container에 추가
         container.add(new LoginScreen(cardLayout, container), "LoginScreen");  // LoginScreen을 "LoginScreen" 카드로 추가
-        container.add(new JoinScreen(cardLayout, container), "JoinScreen");    // JoinScreen을 "JoinScreen" 카드로 추가
+        container.add(new JoinScreen(cardLayout, container), "JoinScreen");
+        container.add(new MenuScreen(), "MenuScreen"); // JoinScreen을 "JoinScreen" 카드로 추가
     }
 }
