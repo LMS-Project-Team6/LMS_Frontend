@@ -14,6 +14,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
+// ... (imports는 기존 그대로 유지)
+
 public class JoinScreen extends JPanel {
 
     public JoinScreen(CardLayout cardLayout, JPanel container) {
@@ -80,6 +82,31 @@ public class JoinScreen extends JPanel {
         field2.setMaximumSize(wideSize);
         field2.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        // 아이디 필드 + 중복 검사 버튼 패널
+        JPanel idPanel = new JPanel();
+        idPanel.setLayout(new BoxLayout(idPanel, BoxLayout.X_AXIS));
+        idPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        idPanel.setMaximumSize(wideSize);
+        idPanel.setOpaque(false);
+
+        RoundedButton checkButton = new RoundedButton("중복 검사");
+        checkButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        checkButton.setPreferredSize(new Dimension(120, 40));
+        checkButton.setMaximumSize(new Dimension(120, 40));
+        checkButton.setMinimumSize(new Dimension(120, 40));
+        checkButton.setForeground(Color.WHITE);
+
+        checkButton.addActionListener(e -> {
+            if (!checkButton.isColorLocked()) {
+                checkButton.setText("사용 가능");
+                checkButton.lockColor(new Color(46, 204, 113)); // 초록색
+            }
+        });
+
+        idPanel.add(field1);
+        idPanel.add(Box.createHorizontalStrut(10));
+        idPanel.add(checkButton);
+
         JPanel adminPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         adminPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         JLabel adminLabel = new JLabel("관리자여부  ");
@@ -107,7 +134,7 @@ public class JoinScreen extends JPanel {
         centerPanel.add(Box.createVerticalStrut(8));
         centerPanel.add(separator);
         centerPanel.add(Box.createVerticalStrut(25));
-        centerPanel.add(field1);
+        centerPanel.add(idPanel);  // 기존 field1 → idPanel 로 변경
         centerPanel.add(Box.createVerticalStrut(10));
         centerPanel.add(field2);
         centerPanel.add(Box.createVerticalStrut(10));
