@@ -3,6 +3,9 @@ package screens;
 import components.GoBackButtonFactory;
 import components.RoundedButton;
 import components.RoundedField;
+import components.RoundedPasswordField;
+import http.LibHttp;
+import vo.Lib;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,14 +19,12 @@ public class JoinScreen extends JPanel {
     public JoinScreen(CardLayout cardLayout, JPanel container) {
         setLayout(new BorderLayout());
 
-        // 1. 전체 화면을 좌우 2분할하는 스플릿 패널
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setLeftComponent(createImagePanel()); // 왼쪽: 이미지
-        splitPane.setRightComponent(createRightLoginPanel(cardLayout, container)); // 오른쪽: 로그인 UI
+        splitPane.setLeftComponent(createImagePanel());
+        splitPane.setRightComponent(createRightLoginPanel(cardLayout, container));
         splitPane.setDividerSize(0);
         splitPane.setEnabled(false);
 
-        // 💡 화면 크기에 따라 50:50 자동 분할되도록 설정
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -35,26 +36,21 @@ public class JoinScreen extends JPanel {
         add(splitPane, BorderLayout.CENTER);
     }
 
-    // 2. 왼쪽 이미지 패널
     private JPanel createImagePanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        ImageIcon icon = new ImageIcon("src/assets/login_image.jpg"); // 이미지 경로 수정 필요
+        ImageIcon icon = new ImageIcon("src/assets/login_image.jpg");
         Image img = icon.getImage().getScaledInstance(1000, 1500, Image.SCALE_SMOOTH);
         JLabel label = new JLabel(new ImageIcon(img));
         label.setHorizontalAlignment(SwingConstants.CENTER);
         panel.add(label, BorderLayout.CENTER);
-
         return panel;
     }
 
-    // 3. 오른쪽 회원가입 UI 패널
     private JPanel createRightLoginPanel(CardLayout cardLayout, JPanel container) {
-        // 1. 텍스트 필드 등 메인요소 담는 패널
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
 
-        // 1-1. 패널에 요소를 담음.
         Dimension wideSize = new Dimension(500, 40);
 
         JLabel label1 = new JLabel("사서 가입");
@@ -67,47 +63,33 @@ public class JoinScreen extends JPanel {
         label2.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
-        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30)); // Adjust width and thickness
+        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 
-        RoundedField field1 = new RoundedField("👤", "아이디");
-        field1.setMaximumSize(wideSize);
-        field1.setAlignmentX(Component.LEFT_ALIGNMENT);
+        RoundedField field1 = new RoundedField("\uD83D\uDC64", "아이디");
+        RoundedPasswordField field2 = new RoundedPasswordField("\uD83D\uDD12", "비밀번호");
+        RoundedField field3 = new RoundedField("\uD83D\uDE00", "이름");
+        RoundedField field4 = new RoundedField("\uD83D\uDCE7", "이메일");
+        RoundedField field5 = new RoundedField("\uD83C\uDF89", "생년월일 ex) 20000101");
+        RoundedField field6 = new RoundedField("\uD83D\uDCDE", "전화번호 ex) 01012345678");
 
-        RoundedField field2 = new RoundedField("🔒", "비밀번호");
+        RoundedField[] fields = { field1, field3, field4, field5, field6 };
+        for (RoundedField field : fields) {
+            field.setMaximumSize(wideSize);
+            field.setAlignmentX(Component.LEFT_ALIGNMENT);
+        }
         field2.setMaximumSize(wideSize);
         field2.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        RoundedField field3 = new RoundedField("😀", "이름");
-        field3.setMaximumSize(wideSize);
-        field3.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        RoundedField field4 = new RoundedField("📧", "이메일");
-        field4.setMaximumSize(wideSize);
-        field4.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        RoundedField field5 = new RoundedField("🎉", "생년월일 ex) 580102");
-        field5.setMaximumSize(wideSize);
-        field5.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        RoundedField field6 = new RoundedField("📞", "전화번호 ex) 01012345678");
-        field6.setMaximumSize(wideSize);
-        field6.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JPanel adminPanel = new JPanel();
-        adminPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        JPanel adminPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         adminPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         JLabel adminLabel = new JLabel("관리자여부  ");
         adminLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-
         JRadioButton yes = new JRadioButton("네");
         JRadioButton no = new JRadioButton("아니요");
         no.setSelected(true);
-
         ButtonGroup adminGroup = new ButtonGroup();
         adminGroup.add(yes);
         adminGroup.add(no);
-
         adminPanel.add(adminLabel);
         adminPanel.add(yes);
         adminPanel.add(no);
@@ -119,7 +101,6 @@ public class JoinScreen extends JPanel {
         finishButton.setMinimumSize(wideSize);
         finishButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // 패널에 요소들 추가
         centerPanel.add(label1);
         centerPanel.add(Box.createVerticalStrut(5));
         centerPanel.add(label2);
@@ -142,50 +123,32 @@ public class JoinScreen extends JPanel {
         centerPanel.add(Box.createVerticalStrut(20));
         centerPanel.add(finishButton);
 
-
-        // 2. 전체 프레임
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.setOpaque(false);
 
-        // 3. 상단 좌측 뒤로가기 버튼
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.setOpaque(false);
         JButton goBackButton = GoBackButtonFactory.createGoBackButton();
         topPanel.add(goBackButton);
         rightPanel.add(topPanel, BorderLayout.NORTH);
 
-        // 4. 가운데 회원가입 UI (centerPanel을 중앙에 위치)
         JPanel centerWrapper = new JPanel(new GridBagLayout());
         centerWrapper.setOpaque(false);
         centerWrapper.add(centerPanel);
         rightPanel.add(centerWrapper, BorderLayout.CENTER);
 
-        // 뒤로가기 버튼 기능
-        goBackButton.addActionListener(e -> {
-            cardLayout.show(container, "LoginScreen");
-            System.out.println("버튼 클릭됨 - LoginScreen으로 이동");
-        });
+        goBackButton.addActionListener(e -> cardLayout.show(container, "LoginScreen"));
 
-        // 중복 검사 리스너
-        field1.getField().addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (!field1.getText().isEmpty()) {
-                    // 백엔드로 아이디 검사 생략
-                    if (false) {
-                        field1.setBorderColor(Color.RED);
-                    }
-                    else {
-                        field1.setBorderColor(new Color(200, 200, 200));
+        for (RoundedField field : fields) {
+            field.getField().addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    if (!field.getText().isEmpty()) {
+                        field.setBorderColor(new Color(200, 200, 200));
                     }
                 }
-                else {
-                    field1.setBorderColor(new Color(200, 200, 200));
-                }
-            }
-        });
-
-        // 입력했을 때 빨간줄 풀기
+            });
+        }
         field2.getField().addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
@@ -194,94 +157,60 @@ public class JoinScreen extends JPanel {
                 }
             }
         });
-        field3.getField().addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (!field3.getText().isEmpty()) {
-                    field3.setBorderColor(new Color(200, 200, 200));
-                }
-            }
-        });
-        field4.getField().addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (!field4.getText().isEmpty()) {
-                    field4.setBorderColor(new Color(200, 200, 200));
-                }
-            }
-        });
-        field5.getField().addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (!field5.getText().isEmpty()) {
-                    field5.setBorderColor(new Color(200, 200, 200));
-                }
-            }
-        });
-        field6.getField().addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (!field6.getText().isEmpty()) {
-                    field6.setBorderColor(new Color(200, 200, 200));
-                }
-            }
-        });
 
-        // 완료 버튼 리스너
         finishButton.addActionListener(e -> {
-            // 오류검사 이상있음
-            if (field1.getText().isEmpty() || field2.getText().isEmpty() || field3.getText().isEmpty() ||
-                    field4.getText().isEmpty() || field5.getText().isEmpty() || field6.getText().isEmpty()) {
-                System.out.println("오류검사 - 빈 내용 있음");
-                if(field1.getText().isEmpty()) {
-                    field1.setBorderColor(Color.RED);
-                }
-                else {
-                    field1.setBorderColor(new Color(200, 200, 200));
-                }
-                if(field2.getText().isEmpty()) {
-                    field2.setBorderColor(Color.RED);
-                }
-                else {
-                    field2.setBorderColor(new Color(200, 200, 200));
-                }
-                if(field3.getText().isEmpty()) {
-                    field3.setBorderColor(Color.RED);
-                }
-                else {
-                    field3.setBorderColor(new Color(200, 200, 200));
-                }
-                if(field4.getText().isEmpty()) {
-                    field4.setBorderColor(Color.RED);
-                }
-                else {
-                    field4.setBorderColor(new Color(200, 200, 200));
-                }
-                if(field5.getText().isEmpty()) {
-                    field5.setBorderColor(Color.RED);
-                }
-                else {
-                    field5.setBorderColor(new Color(200, 200, 200));
-                }
-                if(field6.getText().isEmpty()) {
-                    field6.setBorderColor(Color.RED);
-                }
-                else {
-                    field6.setBorderColor(new Color(200, 200, 200));
+            boolean hasEmpty = false;
+            if (field1.getText().isEmpty()) {
+                field1.setBorderColor(Color.RED);
+                hasEmpty = true;
+            } else {
+                field1.setBorderColor(new Color(200, 200, 200));
+            }
+            if (field2.getText().isEmpty()) {
+                field2.setBorderColor(Color.RED);
+                hasEmpty = true;
+            } else {
+                field2.setBorderColor(new Color(200, 200, 200));
+            }
+            for (RoundedField field : fields) {
+                if (field.getText().isEmpty()) {
+                    field.setBorderColor(Color.RED);
+                    hasEmpty = true;
+                } else {
+                    field.setBorderColor(new Color(200, 200, 200));
                 }
             }
-            // 오류검사 이상없음
-            else {
-                // 아이디 중복 체크 백엔드 처리 생략
-                field1.clearVar();
-                field2.clearVar();
-                field3.clearVar();
-                field4.clearVar();
-                field5.clearVar();
-                field6.clearVar();
 
-                cardLayout.show(container, "LoginScreen");
-                System.out.println("버튼 클릭됨 - 오류검사 수행 중 이상없음 / LoginScreen으로 이동");
+            if (hasEmpty) {
+                System.out.println("오류검사 - 빈 내용 있음");
+                return;
+            }
+
+            Lib newLib = new Lib();
+            newLib.setLibId(field1.getText());
+            newLib.setLibPw(field2.getText());
+            newLib.setLibName(field3.getText());
+            newLib.setLibEmail(field4.getText());
+            newLib.setLibBirth(field5.getText());
+            newLib.setLibPNum(field6.getText());
+            newLib.setAdminNY(yes.isSelected() ? 1 : 0);
+            newLib.setApplyNY(0);
+
+            try {
+                boolean result = LibHttp.register(newLib);
+                if (result) {
+                    JOptionPane.showMessageDialog(this, "회원가입이 완료되었습니다.");
+                    field1.clearVar();
+                    field2.clearVar();
+                    for (RoundedField field : fields) field.clearVar();
+                    cardLayout.show(container, "LoginScreen");
+                    System.out.println("회원가입 성공 → LoginScreen으로 이동");
+                } else {
+                    JOptionPane.showMessageDialog(this, "회원가입에 실패했습니다. 서버 응답을 확인하세요.");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "회원가입 중 오류가 발생했습니다.\n" + ex.getMessage());
             }
         });
 
