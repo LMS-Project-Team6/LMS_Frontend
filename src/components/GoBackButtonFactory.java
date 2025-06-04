@@ -4,8 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GoBackButtonFactory {
-    public static JButton createGoBackButton() {
+    public static JButton createGoBackButton(boolean isWhite) {
         String imagePath = "src/assets/arrow_back_icon.png";
+        if (isWhite) {
+            imagePath = "src/assets/arrow_back_icon_white.png";
+        }
         ImageIcon originalIcon = new ImageIcon(imagePath); // 원본 이미지 아이콘 생성
 
         Image image = originalIcon.getImage();
