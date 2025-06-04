@@ -155,7 +155,7 @@ public class JoinScreen extends JPanel {
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.setOpaque(false);
-        JButton goBackButton = GoBackButtonFactory.createGoBackButton();
+        JButton goBackButton = GoBackButtonFactory.createGoBackButton(false);
         topPanel.add(goBackButton);
         rightPanel.add(topPanel, BorderLayout.NORTH);
 
