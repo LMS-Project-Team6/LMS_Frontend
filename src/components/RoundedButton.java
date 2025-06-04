@@ -8,28 +8,32 @@ import java.awt.event.MouseEvent;
 public class RoundedButton extends JButton {
     private Color normalColor = new Color(0x007BFF);     // 기본 파란색
     private Color hoverColor = new Color(0x339AFF);      // 호버 시 밝은 파란색
+    private boolean isLockedColor = false;               // ✅ 색상 고정 여부
 
     public RoundedButton(String text) {
         super(text);
         setFocusPainted(false);
         setContentAreaFilled(false);
         setForeground(Color.WHITE);
-        setBackground(new Color(0x007BFF));
+        setBackground(normalColor);
         setBorder(null);
         setOpaque(false);
 
-        // ✅ 마우스 호버 효과 추가
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                setBackground(hoverColor);
-                repaint();
+                if (!isLockedColor) {
+                    setBackground(hoverColor);
+                    repaint();
+                }
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                setBackground(normalColor);
-                repaint();
+                if (!isLockedColor) {
+                    setBackground(normalColor);
+                    repaint();
+                }
             }
         });
     }
@@ -37,15 +41,11 @@ public class RoundedButton extends JButton {
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
-
-        // 둥글고 부드러운 외곽선 처리
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // 배경 그리기 (둥근 모양)
         g2.setColor(getBackground());
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
 
-        // 텍스트 중앙 정렬 그리기
         FontMetrics fm = g2.getFontMetrics();
         String text = getText();
         int textWidth = fm.stringWidth(text);
@@ -63,6 +63,23 @@ public class RoundedButton extends JButton {
 
     @Override
     public void setContentAreaFilled(boolean b) {
-        // 내용 배경 채우기 막기 (paintComponent에서 직접 그림)
+        // 비워둠: 직접 그리기 사용
+    }
+
+    // ✅ 색상 고정 기능 추가 메서드
+    public void lockColor(Color fixedColor) {
+        this.isLockedColor = true;
+        this.setBackground(fixedColor);
+        repaint();
+    }
+
+    public void unlockColor() {
+        this.isLockedColor = false;
+        this.setBackground(normalColor);
+        repaint();
+    }
+
+    public boolean isColorLocked() {
+        return isLockedColor;
     }
 }
