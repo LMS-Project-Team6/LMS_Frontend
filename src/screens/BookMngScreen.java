@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class BookMngScreen extends JPanel {
     public BookMngScreen(CardLayout cardLayout, JPanel container) {
@@ -89,6 +91,14 @@ public class BookMngScreen extends JPanel {
         panel1.add(labelInside1, BorderLayout.CENTER);
         anotherPanel.add(panel1);
 
+        panel1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cardLayout.show(container, "BookLendingScreen");
+                System.out.println("버튼 클릭됨 - BookLendingScreen으로 이동");
+            }
+        });
+
         // 두번째 버튼
         JPanel panel2 = new JPanel();
         panel2.setBackground(new Color(200, 240, 200)); // 배경색 RGB(80, 170, 48)
@@ -107,6 +117,14 @@ public class BookMngScreen extends JPanel {
 
         panel2.add(labelInside2, BorderLayout.CENTER);
         anotherPanel.add(panel2);
+
+        panel2.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cardLayout.show(container, "BookBorrowingScreen");
+                System.out.println("버튼 클릭됨 - BookBorrowingScreen으로 이동");
+            }
+        });
 
         // 세번째 버튼
         JPanel panel3 = new JPanel();
