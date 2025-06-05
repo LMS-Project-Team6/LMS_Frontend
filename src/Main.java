@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import screens.MainFrame;
+import screens.MenuScreen;
 
 public class Main {
 
@@ -22,7 +23,8 @@ public class Main {
         JPanel container = new JPanel(cardLayout);
 
         // 👉 메인 프레임 화면 추가
-        container.add(new MainFrame(cardLayout, container), "MainFrame");
+        container.add(new MenuScreen(cardLayout, container), "MenuScreen");
+        // container.add(new MainFrame(cardLayout, container), "MainFrame");
 
         frame.setContentPane(container);
         frame.setVisible(true);
