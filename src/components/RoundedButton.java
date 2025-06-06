@@ -12,7 +12,13 @@ public class RoundedButton extends JButton {
 
     private boolean useShadow = false;                   // 그림자 사용 여부
     private Color borderColor = null;                    // 테두리 색상
-    private boolean isLeft = false;                      // 텍스트 왼쪽 정렬 여부
+    private boolean isLeft = false;
+
+    private boolean useGradient = false;
+    private Color gradientTop = new Color(0x006FFF);
+    private Color gradientBottom = new Color(0x004299);// 텍스트 왼쪽 정렬 여부
+
+    private Image iconImage = null;
 
     public RoundedButton(String text) {
         super(text);
@@ -40,6 +46,11 @@ public class RoundedButton extends JButton {
                 }
             }
         });
+    }
+
+    public void setCustomIcon(ImageIcon icon) {
+        this.iconImage = icon.getImage();
+        repaint();
     }
 
     // 🔵 A: 색상 고정 기능
@@ -88,6 +99,18 @@ public class RoundedButton extends JButton {
         repaint();
     }
 
+    public void enableGradient(Color top, Color bottom) {
+        this.useGradient = true;
+        this.gradientTop = top;
+        this.gradientBottom = bottom;
+        repaint();
+    }
+
+    public void disableGradient() {
+        this.useGradient = false;
+        repaint();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -100,6 +123,15 @@ public class RoundedButton extends JButton {
         }
 
         g2.setColor(getBackground());
+        if (useGradient) {
+            GradientPaint gradient = new GradientPaint(
+                    0, 0, gradientTop,
+                    0, getHeight(), gradientBottom
+            );
+            g2.setPaint(gradient);
+        } else {
+            g2.setColor(getBackground());
+        }
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
 
         if (borderColor != null) {
@@ -108,24 +140,33 @@ public class RoundedButton extends JButton {
             g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 15, 15);
         }
 
-        FontMetrics fm = g2.getFontMetrics();
-        String text = getText();
-        int textWidth = fm.stringWidth(text);
-        int textHeight = fm.getAscent();
+        if (iconImage != null) {
+            int iconSize = 22;
+            int x = (getWidth() - iconSize) / 2;
+            int y = (getHeight() - iconSize) / 2;
+            g2.drawImage(iconImage, x, y, iconSize, iconSize, this);
+        }
 
-        g2.setColor(getForeground());
-        if (!isLeft) {
-            g2.drawString(
-                    text,
-                    (getWidth() - textWidth) / 2,
-                    (getHeight() + textHeight) / 2 - 4
-            );
-        } else {
-            g2.drawString(
-                    text,
-                    30,
-                    (getHeight() + textHeight) / 2 - 4
-            );
+        String text = getText();
+        if (text != null && !text.isEmpty()) {
+            FontMetrics fm = g2.getFontMetrics();
+            int textWidth = fm.stringWidth(text);
+            int textHeight = fm.getAscent();
+
+            g2.setColor(getForeground());
+            if (!isLeft) {
+                g2.drawString(
+                        text,
+                        (getWidth() - textWidth) / 2,
+                        (getHeight() + textHeight) / 2 - 4
+                );
+            } else {
+                g2.drawString(
+                        text,
+                        30,
+                        (getHeight() + textHeight) / 2 - 4
+                );
+            }
         }
 
         g2.dispose();
