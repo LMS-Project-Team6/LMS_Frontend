@@ -79,7 +79,7 @@ public class MenuScreen extends JPanel {
         separatorPanel.add(separator);
 
         textLabelPanel.add(label1);
-        textLabelPanel.add(Box.createVerticalStrut(10));
+        textLabelPanel.add(Box.createVerticalStrut(5));
         textLabelPanel.add(label2);
         textLabelPanel.add(Box.createVerticalStrut(10));
         textLabelPanel.add(separatorPanel);

@@ -1,13 +1,13 @@
 package screens;
 
 import components.GoBackButtonFactory;
+import components.RoundedButton;
 
 import javax.swing.*;
+import javax.swing.border.AbstractBorder;
+import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 public class BookLendingScreen extends JPanel {
     public BookLendingScreen(CardLayout cardLayout, JPanel container) {
@@ -190,7 +190,188 @@ public class BookLendingScreen extends JPanel {
     }
 
     private JPanel rightView(CardLayout cardLayout, JPanel container) {
+        // 오른쪽만 화면 전환
+        CardLayout innerCardLayout = new CardLayout();
+        JPanel innerContainer = new JPanel(cardLayout);
 
-        return new JPanel();
+        // 전환 패널 1
+        JPanel panel1 = new JPanel();
+        panel1.setLayout(new BoxLayout(panel1, BoxLayout.Y_AXIS));
+        panel1.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50)); // 좌우 여백
+
+        panel1.add(Box.createVerticalStrut(50));
+        JLabel title = new JLabel("도서 대출");
+        title.setFont(new Font("SansSerif", Font.BOLD, 40));
+        title.setForeground(Color.BLACK);
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel1.add(title);
+
+        panel1.add(Box.createVerticalStrut(8));
+        JLabel subtitle = new JLabel("1. 대출할 회원을 조회하세요");
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 17));
+        subtitle.setForeground(Color.GRAY);
+        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel1.add(subtitle);
+
+        panel1.add(Box.createVerticalStrut(10));
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
+        panel1.add(separator);
+
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        searchPanel.setOpaque(false);
+
+        String[] categories = { "카테고리 선택   ", "아이디", "이름", "이메일" };
+        JComboBox<String> categoryBox = new JComboBox<String>(categories);
+        categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 15));
+
+        JTextField searchField = new JTextField(20);
+        searchField.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+            new RoundedBorder(8),
+            BorderFactory.createEmptyBorder(0, 5, 0, 5)
+        ));
+        searchField.setText("검색어를 입력하세요.");
+        searchField.setForeground(Color.GRAY);
+
+        searchField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (searchField.getText().equals("검색어를 입력하세요.")) {
+                    searchField.setText("");
+                    searchField.setForeground(Color.BLACK);
+                }
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (searchField.getText().isEmpty()) {
+                    searchField.setForeground(Color.GRAY);
+                    searchField.setText("검색어를 입력하세요.");
+                }
+            }
+        });
+
+        ImageIcon icon = new ImageIcon("src/assets/search_icon.png");
+        Image img = icon.getImage().getScaledInstance(22, 22, Image.SCALE_SMOOTH);
+        icon = new ImageIcon(img);
+
+        RoundedButton searchButton = new RoundedButton("");
+        searchButton.setCustomIcon(icon);
+        searchButton.setHorizontalAlignment(SwingConstants.CENTER);
+        searchButton.setPreferredSize(new Dimension(38, 38));
+        searchButton.setMaximumSize(searchButton.getPreferredSize());
+        searchButton.setMinimumSize(searchButton.getPreferredSize());
+        searchButton.enableGradient(new Color(0x8C, 0xF2, 0x7F), new Color(0x14, 0xAD, 0x00));
+        searchButton.setBorderColor(new Color(0x0E, 0x7B, 0x00));
+        searchButton.setTextColor(Color.WHITE);
+
+        searchPanel.add(categoryBox);
+        searchPanel.add(Box.createHorizontalStrut(5)); // 가로 방향으로 50px 띄우기
+        searchPanel.add(searchField);
+        searchPanel.add(Box.createHorizontalStrut(5)); // 가로 방향으로 50px 띄우기
+        searchPanel.add(searchButton);
+        panel1.add(Box.createVerticalStrut(30));
+        panel1.add(searchPanel);
+
+        // 테이블 코드 시작 🥲
+        String[] columnNames = { " ", "아이디", "이름", "이메일", "등록일자", " " };
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        JTable table = new JTable(model);
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
+        table.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+        // 컬럼 길이 조절
+        TableColumnModel columnModel = table.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(40);
+        columnModel.getColumn(0).setMinWidth(40);
+        columnModel.getColumn(0).setMaxWidth(40);
+        columnModel.getColumn(2).setPreferredWidth(150);
+        columnModel.getColumn(2).setMinWidth(150);
+        columnModel.getColumn(2).setMaxWidth(150);
+        columnModel.getColumn(4).setPreferredWidth(150);
+        columnModel.getColumn(4).setMinWidth(150);
+        columnModel.getColumn(4).setMaxWidth(150);
+        columnModel.getColumn(5).setPreferredWidth(150);
+        columnModel.getColumn(5).setMinWidth(150);
+        columnModel.getColumn(5).setMaxWidth(150);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel1.add(scrollPane);
+        // 테이블 코드 끝 😀
+
+        // 페이지 패널
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+        buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20)); // 최대 높이 제한
+//        buttonPanel.setBorder(BorderFactory.createLineBorder(Color.RED));
+
+        JPanel flowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//        flowPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+
+        JButton prevButton = new JButton("<");
+        flowPanel.add(prevButton);
+
+        JButton[] pageButtons = new JButton[5];
+        for (int i = 0; i < 5; i++) {
+            pageButtons[i] = new JButton(String.valueOf(i + 1));
+            if (i == 0) pageButtons[i].setBackground(Color.GREEN); // 첫 번째 페이지 강조
+            pageButtons[i].setOpaque(true);
+            flowPanel.add(pageButtons[i]);
+        }
+
+        JButton nextButton = new JButton(">");
+        flowPanel.add(nextButton);
+
+        buttonPanel.add(flowPanel, BorderLayout.NORTH);
+        panel1.add(buttonPanel);
+
+        // 다음 버튼
+        JPanel nextCardButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        nextCardButtonPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        nextCardButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        RoundedButton nextCardButton = new RoundedButton("다음");
+        Dimension size = new Dimension(100, 30);
+        nextCardButton.setMaximumSize(size);
+        nextCardButton.setPreferredSize(size);
+        nextCardButton.setMinimumSize(size);
+        nextCardButtonPanel.add(nextCardButton);
+        panel1.add(nextCardButtonPanel);
+
+        panel1.add(Box.createVerticalStrut(10));
+
+        innerContainer.add(panel1, "panel1");
+
+        return innerContainer;
+    }
+}
+
+// Custom rounded border class
+class RoundedBorder extends AbstractBorder {
+    private int radius;
+
+    RoundedBorder(int radius) {
+        this.radius = radius;
+    }
+
+    @Override
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setColor(Color.BLACK);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+        g2.dispose();
+    }
+
+    @Override
+    public Insets getBorderInsets(Component c) {
+        return new Insets(radius + 1, radius + 1, radius + 1, radius + 1);
+    }
+
+    @Override
+    public Insets getBorderInsets(Component c, Insets insets) {
+        insets.left = insets.right = insets.top = insets.bottom = radius + 1;
+        return insets;
     }
 }
