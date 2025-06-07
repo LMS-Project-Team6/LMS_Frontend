@@ -99,8 +99,8 @@ public class BookReturnScreen extends JPanel {
         panel1.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                cardLayout.show(container, "BookLendingScreen");
-                System.out.println("버튼 클릭됨 - BookLendingScreen으로 이동");
+                cardLayout.show(container, "BookLendingScreen1");
+                System.out.println("버튼 클릭됨 - BookLendingScreen1으로 이동");
             }
         });
 
