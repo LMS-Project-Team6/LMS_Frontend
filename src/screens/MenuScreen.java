@@ -150,8 +150,8 @@ public class MenuScreen extends JPanel {
         layerPanel1.add(Box.createVerticalStrut(20));
 
         button1_2.addActionListener(e -> {
-            cardLayout.show(container, "BookBorrowingScreen");
-            System.out.println("버튼 클릭됨 - BookBorrowingScreen으로 이동");
+            cardLayout.show(container, "BookReturnScreen");
+            System.out.println("버튼 클릭됨 - BookReturnScreen으로 이동");
         });
 
         // 버튼 레이어1의 버튼3
