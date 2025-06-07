@@ -13,7 +13,8 @@ public class MainFrame extends JPanel {
 //        container.add(new JoinScreen(cardLayout, container), "JoinScreen");
         container.add(new MenuScreen(cardLayout, container), "MenuScreen"); // JoinScreen을 "JoinScreen" 카드로 추가
         container.add(new BookMngScreen(cardLayout, container), "BookMngScreen"); // JoinScreen을 "JoinScreen" 카드로 추가
-        container.add(new BookLendingScreen(cardLayout, container), "BookLendingScreen"); // JoinScreen을 "JoinScreen" 카드로 추가
+        container.add(new BookLendingScreen1(cardLayout, container), "BookLendingScreen1"); // JoinScreen을 "JoinScreen" 카드로 추가
+        container.add(new BookLendingScreen2(cardLayout, container), "BookLendingScreen2"); // JoinScreen을 "JoinScreen" 카드로 추가
         container.add(new BookReturnScreen(cardLayout, container), "BookReturnScreen"); // JoinScreen을 "JoinScreen" 카드로 추가
         container.add(new BookInfoScreen(cardLayout, container), "BookInfoScreen");
     }

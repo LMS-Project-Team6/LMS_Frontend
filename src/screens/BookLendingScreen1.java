@@ -9,8 +9,8 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class BookLendingScreen extends JPanel {
-    public BookLendingScreen(CardLayout cardLayout, JPanel container) {
+public class BookLendingScreen1 extends JPanel {
+    public BookLendingScreen1(CardLayout cardLayout, JPanel container) {
         setLayout(new BorderLayout());
 
         // 1. 전체 화면을 좌우 2분할하는 스플릿 패널
@@ -112,8 +112,8 @@ public class BookLendingScreen extends JPanel {
         panel2.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                cardLayout.show(container, "BookBorrowingScreen");
-                System.out.println("버튼 클릭됨 - BookBorrowingScreen으로 이동");
+                cardLayout.show(container, "BookReturnScreen");
+                System.out.println("버튼 클릭됨 - BookReturnScreen으로 이동");
             }
         });
 
@@ -182,18 +182,12 @@ public class BookLendingScreen extends JPanel {
             }
         });
 
-
-
         panel.add(anotherPanel, BorderLayout.CENTER);
 
         return panel;
     }
 
     private JPanel rightView(CardLayout cardLayout, JPanel container) {
-        // 오른쪽만 화면 전환
-        CardLayout innerCardLayout = new CardLayout();
-        JPanel innerContainer = new JPanel(cardLayout);
-
         // 전환 패널 1
         JPanel panel1 = new JPanel();
         panel1.setLayout(new BoxLayout(panel1, BoxLayout.Y_AXIS));
@@ -229,8 +223,8 @@ public class BookLendingScreen extends JPanel {
         JTextField searchField = new JTextField(20);
         searchField.setFont(new Font("SansSerif", Font.PLAIN, 15));
         searchField.setBorder(BorderFactory.createCompoundBorder(
-            new RoundedBorder(8),
-            BorderFactory.createEmptyBorder(0, 5, 0, 5)
+                new RoundedBorder(6),
+                BorderFactory.createEmptyBorder(0, 5, 0, 5)
         ));
         searchField.setText("검색어를 입력하세요.");
         searchField.setForeground(Color.GRAY);
@@ -328,6 +322,18 @@ public class BookLendingScreen extends JPanel {
             pageButtons[i].setPreferredSize(new Dimension(40, 35)); // 또는 원하는 크기
             pageButtons[i].setMinimumSize(new Dimension(40, 35));
             pageButtons[i].setMaximumSize(new Dimension(40, 35));
+            int index = i;
+            pageButtons[i].addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    // 페이지 API 동작 코드 여기에
+                    for (int i = 0; i < 5; i++) {
+                        pageButtons[i].setForeground(Color.BLACK);
+                    }
+                    pageButtons[index].setForeground(Color.GREEN);
+                    System.out.println("페이지 이동(BookLendingScreen)");
+                }
+            });
             flowPanel.add(pageButtons[i]);
         }
 
@@ -346,18 +352,24 @@ public class BookLendingScreen extends JPanel {
         nextCardButtonPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         nextCardButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         RoundedButton nextCardButton = new RoundedButton("다음");
-        Dimension size = new Dimension(100, 30);
+        Dimension size = new Dimension(100, 32);
         nextCardButton.setMaximumSize(size);
         nextCardButton.setPreferredSize(size);
         nextCardButton.setMinimumSize(size);
         nextCardButtonPanel.add(nextCardButton);
         panel1.add(nextCardButtonPanel);
 
+        nextCardButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cardLayout.show(container, "BookLendingScreen2");
+                System.out.println("버튼 클릭됨 - BookLendingScreen2으로 이동");
+            }
+        });
+
         panel1.add(Box.createVerticalStrut(80));
 
-        innerContainer.add(panel1, "panel1");
-
-        return innerContainer;
+        return panel1;
     }
 }
 
