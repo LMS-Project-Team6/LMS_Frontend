@@ -4,7 +4,6 @@ import components.GoBackButtonFactory;
 import components.RoundedButton;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -16,8 +15,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookBorrowingScreen extends JPanel {
-    public BookBorrowingScreen(CardLayout cardLayout, JPanel container) {
+public class BookReturnScreen extends JPanel {
+    public BookReturnScreen(CardLayout cardLayout, JPanel container) {
         setLayout(new BorderLayout());
 
         // 1. 전체 화면을 좌우 2분할하는 스플릿 패널
