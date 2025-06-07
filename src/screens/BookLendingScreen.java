@@ -274,6 +274,8 @@ public class BookLendingScreen extends JPanel {
         panel1.add(Box.createVerticalStrut(30));
         panel1.add(searchPanel);
 
+        panel1.add(Box.createVerticalStrut(15));
+
         // 테이블 코드 시작 🥲
         String[] columnNames = { " ", "아이디", "이름", "이메일", "등록일자", " " };
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
@@ -301,6 +303,8 @@ public class BookLendingScreen extends JPanel {
         panel1.add(scrollPane);
         // 테이블 코드 끝 😀
 
+        panel1.add(Box.createVerticalStrut(10));
+
         // 페이지 패널
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -311,17 +315,27 @@ public class BookLendingScreen extends JPanel {
 //        flowPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
 
         JButton prevButton = new JButton("<");
+        prevButton.setPreferredSize(new Dimension(40, 35)); // 또는 원하는 크기
+        prevButton.setMinimumSize(new Dimension(40, 35));
+        prevButton.setMaximumSize(new Dimension(40, 35));
         flowPanel.add(prevButton);
 
         JButton[] pageButtons = new JButton[5];
         for (int i = 0; i < 5; i++) {
             pageButtons[i] = new JButton(String.valueOf(i + 1));
-            if (i == 0) pageButtons[i].setBackground(Color.GREEN); // 첫 번째 페이지 강조
-            pageButtons[i].setOpaque(true);
+            if (i == 0) pageButtons[i].setForeground(Color.GREEN); // 첫 번째 페이지 강조
+            pageButtons[i].setOpaque(false);
+            pageButtons[i].setPreferredSize(new Dimension(40, 35)); // 또는 원하는 크기
+            pageButtons[i].setMinimumSize(new Dimension(40, 35));
+            pageButtons[i].setMaximumSize(new Dimension(40, 35));
             flowPanel.add(pageButtons[i]);
         }
 
         JButton nextButton = new JButton(">");
+        nextButton.setPreferredSize(new Dimension(40, 35)); // 또는 원하는 크기
+        nextButton.setMinimumSize(new Dimension(40, 35));
+        nextButton.setMaximumSize(new Dimension(40, 35));
+
         flowPanel.add(nextButton);
 
         buttonPanel.add(flowPanel, BorderLayout.NORTH);
@@ -339,7 +353,7 @@ public class BookLendingScreen extends JPanel {
         nextCardButtonPanel.add(nextCardButton);
         panel1.add(nextCardButtonPanel);
 
-        panel1.add(Box.createVerticalStrut(10));
+        panel1.add(Box.createVerticalStrut(80));
 
         innerContainer.add(panel1, "panel1");
 
