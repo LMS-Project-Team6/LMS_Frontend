@@ -20,7 +20,7 @@ public class MemHttp {
 
     public static List<Mem> searchMems(String category, String keyword) throws IOException {
         String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-        String url = BASE_API_URL + "/memSearch?searchType=" + category + "&searchValue=" + encodedKeyword;
+        String url = BASE_API_URL + "/memSearch?category=" + category + "&keyword=" + encodedKeyword;
         try {
             return fetchMemList(url); // 여기가 핵심
         } catch (Exception e) {
