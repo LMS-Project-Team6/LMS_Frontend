@@ -1,5 +1,6 @@
 package components;
 
+import model.LibModel;
 import screens.*;
 
 import javax.swing.*;
@@ -52,7 +53,8 @@ public class LeftSidePanel extends JPanel {
         content.add(label);
 
         content.add(Box.createVerticalStrut(20));
-        JLabel name = new JLabel("안명근");
+        String libName = LibModel.getInstance().getLoggedInLib().getLibName();
+        JLabel name = new JLabel(libName);
         name.setFont(new Font("SansSerif", Font.BOLD, 35));
         name.setForeground(Color.WHITE);
         name.setAlignmentX(Component.CENTER_ALIGNMENT);
