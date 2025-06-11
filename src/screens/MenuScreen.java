@@ -130,8 +130,21 @@ public class MenuScreen extends JPanel {
         layerPanel1.add(Box.createVerticalStrut(20));
 
         button1_1.addActionListener(e -> {
+            // 기존 화면 제거
+            for (Component comp : container.getComponents()) {
+                if (comp instanceof BookLendingScreen1) {
+                    container.remove(comp);
+                    break;
+                }
+            }
+
+            // 새로 생성 및 추가
+            JPanel screen = new BookLendingScreen1(cardLayout, container);
+            container.add(screen, "BookLendingScreen1");
+
+            // 화면 전환
             cardLayout.show(container, "BookLendingScreen1");
-            System.out.println("버튼 클릭됨 - BookLendingScreen1으로 이동");
+            System.out.println("🔄 BookLendingScreen1으로 이동 (다시 생성)");
         });
 
         // 버튼 레이어1의 버튼2
@@ -150,8 +163,21 @@ public class MenuScreen extends JPanel {
         layerPanel1.add(Box.createVerticalStrut(20));
 
         button1_2.addActionListener(e -> {
+            // 기존 화면 제거
+            for (Component comp : container.getComponents()) {
+                if (comp instanceof BookLendingScreen1) {
+                    container.remove(comp);
+                    break;
+                }
+            }
+
+            // 새로 생성 및 추가
+            JPanel screen = new BookReturnScreen(cardLayout, container);
+            container.add(screen, "BookReturnScreen");
+
+            // 화면 전환
             cardLayout.show(container, "BookReturnScreen");
-            System.out.println("버튼 클릭됨 - BookReturnScreen으로 이동");
+            System.out.println("🔄 BookReturnScreen으로 이동 (다시 생성)");
         });
 
         // 버튼 레이어1의 버튼3
@@ -168,6 +194,9 @@ public class MenuScreen extends JPanel {
         button1_3.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel1.add(button1_3);
         layerPanel1.add(Box.createVerticalStrut(20));
+        button1_3.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 버튼 레이어1의 버튼4
         RoundedButton button1_4 = new RoundedButton("\uD83D\uDCE5\n 도서 반납 관리");
@@ -183,6 +212,9 @@ public class MenuScreen extends JPanel {
         button1_4.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel1.add(button1_4);
         layerPanel1.add(Box.createVerticalStrut(20));
+        button1_4.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 버튼 레이어1의 버튼5
         RoundedButton button1_5 = new RoundedButton("\uD83D\uDD0D  도서 관리");
@@ -200,17 +232,21 @@ public class MenuScreen extends JPanel {
         layerPanel1.add(Box.createVerticalStrut(20));
 
         button1_5.addActionListener(e -> {
-            cardLayout.show(container, "BookMngScreen");
-
-            // container 내부의 컴포넌트 중 BookMngScreen 인스턴스를 찾아 refresh 호출
+            // 기존 화면 제거
             for (Component comp : container.getComponents()) {
-                if (comp instanceof BookMngScreen screen) {
-                    screen.refresh();
+                if (comp instanceof BookLendingScreen1) {
+                    container.remove(comp);
                     break;
                 }
             }
 
-            System.out.println("버튼 클릭됨 - BookMngScreen으로 이동 및 새로고침");
+            // 새로 생성 및 추가
+            JPanel screen = new BookMngScreen(cardLayout, container);
+            container.add(screen, "BookMngScreen");
+
+            // 화면 전환
+            cardLayout.show(container, "BookMngScreen");
+            System.out.println("🔄 BookMngScreen으로 이동 (다시 생성)");
         });
 
         // 2-2. 버튼 레이어2
@@ -242,6 +278,9 @@ public class MenuScreen extends JPanel {
         button2_1.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel2.add(button2_1);
         layerPanel2.add(Box.createVerticalStrut(20));
+        button2_1.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 버튼 레이어2의 버튼2
         RoundedButton button2_2 = new RoundedButton("\uD83C\uDFE0\n 그룹 스터디룸 관리");
@@ -257,6 +296,9 @@ public class MenuScreen extends JPanel {
         button2_2.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel2.add(button2_2);
         layerPanel2.add(Box.createVerticalStrut(20));
+        button2_2.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 버튼 레이어2의 버튼3
         RoundedButton button2_3 = new RoundedButton("\uD83D\uDD53\n 그룹 스터디룸 사용 이력 관리");
@@ -272,6 +314,9 @@ public class MenuScreen extends JPanel {
         button2_3.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel2.add(button2_3);
         layerPanel2.add(Box.createVerticalStrut(200));
+        button2_3.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 2-3. 버튼 레이어3
         JPanel layerPanel3 = new JPanel();
@@ -302,6 +347,9 @@ public class MenuScreen extends JPanel {
         button3_1.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel3.add(button3_1);
         layerPanel3.add(Box.createVerticalStrut(20));
+        button3_1.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 버튼 레이어3의 버튼2
         RoundedButton button3_2 = new RoundedButton("💳  사서 관리");
@@ -317,6 +365,9 @@ public class MenuScreen extends JPanel {
         button3_2.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel3.add(button3_2);
         layerPanel3.add(Box.createVerticalStrut(50));
+        button3_2.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 버튼 레이어3의 라벨1
         JLabel label4 = new JLabel("ETC");
@@ -339,6 +390,9 @@ public class MenuScreen extends JPanel {
         button3_3.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel3.add(button3_3);
         layerPanel3.add(Box.createVerticalStrut(20));
+        button3_3.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 버튼 레이어3의 버튼4
         RoundedButton button3_4 = new RoundedButton("\uD83D\uDCE2\n 공지사항");
@@ -354,6 +408,9 @@ public class MenuScreen extends JPanel {
         button3_4.setNewColor(new Color(255, 255, 255), new Color(150, 150, 150));
         layerPanel3.add(button3_4);
         layerPanel3.add(Box.createVerticalStrut(20));
+        button3_4.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "해당 서비스는 현재 준비 중입니다.", "서비스 준비 중", JOptionPane.INFORMATION_MESSAGE);
+        });
 
         // 3. 1-2와 2번들 합체
         basketPanel.add(layerPanel1);

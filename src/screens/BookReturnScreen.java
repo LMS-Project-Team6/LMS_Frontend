@@ -1,11 +1,13 @@
 package screens;
 
 import components.GoBackButtonFactory;
+import components.LeftSidePanel;
 import components.RoundedButton;
 import components.RoundedFieldLeft;
 import http.BookHttp;
 import http.LendReturnHttp;
 import vo.Book;
+import vo.LendReturn;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -19,17 +21,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookReturnScreen extends JPanel {
-    private DefaultTableModel model; // 전역 선언
-    private JTable bookTable;        // 전역 선언
+    private DefaultTableModel model = new DefaultTableModel(
+            new String[]{" ", "고유번호", "제목", "대출자", "대출일자"}, 0
+    ) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return column == 0;
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            return switch (columnIndex) {
+                case 0 -> Boolean.class;
+                default -> String.class;
+            };
+        }
+    };
+    private JTable lendTable;        // 전역 선언
     private JPanel cartPanel;
-    private JLabel indicatorLabel;
 
     public BookReturnScreen(CardLayout cardLayout, JPanel container) {
         setLayout(new BorderLayout());
 
         // 1. 전체 화면을 좌우 2분할하는 스플릿 패널
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setLeftComponent(leftView(cardLayout, container)); // 왼쪽: 이미지
+        splitPane.setLeftComponent(new LeftSidePanel(cardLayout, container)); // 왼쪽: 이미지
         splitPane.setRightComponent(rightView(cardLayout, container)); // 오른쪽: 로그인 UI
         splitPane.setDividerSize(0);
         splitPane.setEnabled(false);
@@ -66,197 +82,47 @@ public class BookReturnScreen extends JPanel {
 
     private void loadAllBooks() {
         try {
-            java.util.List<Book> books = BookHttp.findAllAvailability();
-            updateTable(books);
+            java.util.List<LendReturn> lendBooks = LendReturnHttp.findAllNotReturn();
+            System.out.println("🔍 대출 도서 리스트 로딩 시작");
+            for (LendReturn lr : lendBooks) {
+                System.out.println("bookId=" + lr.getBookId() +
+                        ", title=" + lr.getBookTitle() +
+                        ", name=" + lr.getMemName());
+            }
+            updateTable(lendBooks);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "도서 목록을 불러올 수 없습니다.");
         }
-        String selectedMemId = BookLendingScreen1.selectedMemId;
-        System.out.println("전달된 회원 ID: " + selectedMemId);
     }
 
     private void searchBooks(String category, String keyword) {
         try {
-            java.util.List<Book> books = BookHttp.searchBooks(category, keyword);
-            updateTable(books);
+            java.util.List<LendReturn> lendBooks = LendReturnHttp.searchLendBooks(category, keyword);
+            updateTable(lendBooks);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "검색 결과가 없습니다.");
         }
     }
 
-    private void updateTable(List<Book> books) {
+    private void updateTable(List<LendReturn> lendBooks) {
         if (model == null) return;
 
         model.setRowCount(0);  // 항상 테이블 초기화
 
-        for (Book b : books) {
+        for (LendReturn lr : lendBooks) {
             model.addRow(new Object[]{
                     false,
-                    b.getBookId(),
-                    b.getBookTitle(),
-                    b.getBookWriter(),
-                    b.getBookCNum()
+                    lr.getBookId(),
+                    lr.getBookTitle(),
+                    lr.getMemName(),
+                    lr.getLendDate()
             });
         }
-    }
 
-    private JPanel leftView(CardLayout cardLayout, JPanel container) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(80, 170, 48));
-
-        // 1-1. 뒤로 가기 프레임
-        JPanel goBackPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        goBackPanel.setOpaque(false);
-        JButton goBackButton = GoBackButtonFactory.createGoBackButton(true);
-        goBackPanel.add(goBackButton);
-        panel.add(goBackPanel, BorderLayout.NORTH);
-
-        // 1-2. 뒤로 가기 리스너
-        goBackButton.addActionListener(e -> {
-            cardLayout.show(container, "MenuScreen");
-            System.out.println("버튼 클릭됨 - MenuScreen으로 이동");
-        });
-
-        // 그 외 컴포넌트들 담는 컨테이너
-        JPanel anotherPanel = new JPanel();
-        anotherPanel.setLayout(new BoxLayout(anotherPanel, BoxLayout.Y_AXIS));
-        anotherPanel.setBackground(new Color(80, 170, 48));
-
-        // 프로필 사진 (디폴트 부엉이 고정)
-        ImageIcon icon = new ImageIcon("src/assets/profile.png");
-        Image img = icon.getImage().getScaledInstance(117, 167, Image.SCALE_SMOOTH);
-        JLabel label = new JLabel(new ImageIcon(img));
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-        anotherPanel.add(label);
-
-        // 유저 이름 표시
-        anotherPanel.add(Box.createVerticalStrut(20)); // 공간 여백
-        JLabel name = new JLabel("안명근"); // DB에서 연결해서 변경 필요 (디폴트는 안명근으로 설정)
-        name.setFont(new Font("SansSerif", Font.BOLD, 35));
-        name.setForeground(Color.WHITE);
-        name.setAlignmentX(Component.CENTER_ALIGNMENT);
-        anotherPanel.add(name);
-        anotherPanel.add(Box.createVerticalStrut(35)); // 공간 여백
-
-        // 첫번째 버튼
-        JPanel panel1 = new JPanel();
-        panel1.setBackground(new Color(200, 240, 200)); // 배경색 RGB(80, 170, 48)
-        panel1.setOpaque(true);
-        panel1.setPreferredSize(new Dimension(330, 60)); // 가로 200px, 세로 50px
-        panel1.setMinimumSize(new Dimension(330, 60));
-        panel1.setMaximumSize(new Dimension(330, 60));
-        panel1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel1.setLayout(new BorderLayout()); // JLabel 중앙 배치를 위해
-
-        JLabel labelInside1 = new JLabel("\uD83D\uDCD6\n 도서 대출", SwingConstants.LEFT);
-        labelInside1.setFont(new Font("SansSerif", Font.BOLD, 25));
-        labelInside1.setForeground(Color.BLACK);
-        labelInside1.setOpaque(false); // JLabel 배경 투명
-        labelInside1.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // 상, 좌, 하, 우
-
-        panel1.add(labelInside1, BorderLayout.CENTER);
-        anotherPanel.add(panel1);
-
-        panel1.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                cardLayout.show(container, "BookLendingScreen1");
-                System.out.println("버튼 클릭됨 - BookLendingScreen1으로 이동");
-            }
-        });
-
-        // 두번째 버튼
-        JPanel panel2 = new JPanel();
-        panel2.setBackground(Color.WHITE); // 배경색 RGB(80, 170, 48)
-        panel2.setOpaque(true);
-        panel2.setPreferredSize(new Dimension(330, 60)); // 가로 200px, 세로 50px
-        panel2.setMinimumSize(new Dimension(330, 60));
-        panel2.setMaximumSize(new Dimension(330, 60));
-        panel2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel2.setLayout(new BorderLayout()); // JLabel 중앙 배치를 위해
-
-        JLabel labelInside2 = new JLabel("\uD83D\uDCDA\n 도서 반납", SwingConstants.LEFT);
-        labelInside2.setFont(new Font("SansSerif", Font.BOLD, 25));
-        labelInside2.setForeground(Color.BLACK);
-        labelInside2.setOpaque(false); // JLabel 배경 투명
-        labelInside2.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // 상, 좌, 하, 우
-
-        panel2.add(labelInside2, BorderLayout.CENTER);
-        anotherPanel.add(panel2);
-
-        // 세번째 버튼
-        JPanel panel3 = new JPanel();
-        panel3.setBackground(new Color(200, 240, 200)); // 배경색 RGB(80, 170, 48)
-        panel3.setOpaque(true);
-        panel3.setPreferredSize(new Dimension(330, 60)); // 가로 200px, 세로 50px
-        panel3.setMinimumSize(new Dimension(330, 60));
-        panel3.setMaximumSize(new Dimension(330, 60));
-        panel3.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel3.setLayout(new BorderLayout()); // JLabel 중앙 배치를 위해
-
-        JLabel labelInside3 = new JLabel("\uD83D\uDED2\n 도서 대출 관리", SwingConstants.LEFT);
-        labelInside3.setFont(new Font("SansSerif", Font.BOLD, 25));
-        labelInside3.setForeground(Color.BLACK);
-        labelInside3.setOpaque(false); // JLabel 배경 투명
-        labelInside3.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // 상, 좌, 하, 우
-
-        panel3.add(labelInside3, BorderLayout.CENTER);
-        anotherPanel.add(panel3);
-
-        // 네번째 버튼
-        JPanel panel4 = new JPanel();
-        panel4.setBackground(new Color(200, 240, 200)); // 배경색 RGB(80, 170, 48)
-        panel4.setOpaque(true);
-        panel4.setPreferredSize(new Dimension(330, 60)); // 가로 200px, 세로 50px
-        panel4.setMinimumSize(new Dimension(330, 60));
-        panel4.setMaximumSize(new Dimension(330, 60));
-        panel4.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel4.setLayout(new BorderLayout()); // JLabel 중앙 배치를 위해
-
-        JLabel labelInside4 = new JLabel("\uD83D\uDCE5\n 도서 반납 관리", SwingConstants.LEFT);
-        labelInside4.setFont(new Font("SansSerif", Font.BOLD, 25));
-        labelInside4.setForeground(Color.BLACK);
-        labelInside4.setOpaque(false); // JLabel 배경 투명
-        labelInside4.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // 상, 좌, 하, 우
-
-        panel4.add(labelInside4, BorderLayout.CENTER);
-        anotherPanel.add(panel4);
-
-        // 다섯번째 버튼
-        JPanel panel5 = new JPanel();
-        panel5.setBackground(new Color(200, 240, 200)); // 배경색 RGB(80, 170, 48)
-        panel5.setOpaque(true);
-        panel5.setPreferredSize(new Dimension(330, 60)); // 가로 200px, 세로 50px
-        panel5.setMinimumSize(new Dimension(330, 60));
-        panel5.setMaximumSize(new Dimension(330, 60));
-        panel5.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel5.setLayout(new BorderLayout()); // JLabel 중앙 배치를 위해
-
-        JLabel labelInside5 = new JLabel("\uD83D\uDD0D  도서 관리", SwingConstants.LEFT);
-        labelInside5.setFont(new Font("SansSerif", Font.BOLD, 25));
-        labelInside5.setForeground(Color.BLACK);
-        labelInside5.setOpaque(false); // JLabel 배경 투명
-        labelInside5.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // 상, 좌, 하, 우
-
-        panel5.add(labelInside5, BorderLayout.CENTER);
-        anotherPanel.add(panel5);
-
-        panel5.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                cardLayout.show(container, "BookMngScreen");
-                System.out.println("버튼 클릭됨 - BookMngScreen으로 이동");
-            }
-        });
-
-
-
-        panel.add(anotherPanel, BorderLayout.CENTER);
-
-        return panel;
+        lendTable.revalidate();
+        lendTable.repaint();
     }
 
     private JPanel rightView(CardLayout cardLayout, JPanel container) {
@@ -320,7 +186,7 @@ public class BookReturnScreen extends JPanel {
         searchPanel.setOpaque(false);
 
         //카테고리
-        String[] categories = {"카테고리 선택", "고유번호", "제목", "청구기호"};
+        String[] categories = {"카테고리 선택", "고유번호"};
         JComboBox<String> categoryCombo = new JComboBox<>(categories);
         categoryCombo.setPreferredSize(new Dimension(130, 38));
         categoryCombo.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -355,14 +221,12 @@ public class BookReturnScreen extends JPanel {
         searchBtn.setBorderColor(new Color(0x0E, 0x7B, 0x00));
         searchBtn.setTextColor(Color.WHITE);
         searchBtn.addActionListener(e -> {
-            if (bookTable.isEditing()) {
-                bookTable.getCellEditor().stopCellEditing(); // 편집 종료
+            if (lendTable.isEditing()) {
+                lendTable.getCellEditor().stopCellEditing(); // 편집 종료
             }
 
             String category = switch ((String) categoryCombo.getSelectedItem()) {
                 case "고유번호" -> "bookId";
-                case "제목" -> "bookTitle";
-                case "청구기호" -> "bookCNum";
                 default -> "";
             };
             String keyword = searchField.getText().trim();
@@ -395,10 +259,10 @@ public class BookReturnScreen extends JPanel {
         plusButton.setBorderColor(new Color(0x0E, 0x7B, 0x00));
         plusButton.setTextColor(Color.WHITE);
         plusButton.addActionListener(e -> {
-            for (int i = 0; i < bookTable.getRowCount(); i++) {
-                Boolean isChecked = (Boolean) bookTable.getValueAt(i, 0);
+            for (int i = 0; i < lendTable.getRowCount(); i++) {
+                Boolean isChecked = (Boolean) lendTable.getValueAt(i, 0);
                 if (isChecked != null && isChecked) {
-                    String title = (String) bookTable.getValueAt(i, 2); // 제목
+                    String title = (String) lendTable.getValueAt(i, 2); // 제목
 
                     // 중복 방지
                     boolean exists = false;
@@ -414,10 +278,10 @@ public class BookReturnScreen extends JPanel {
                     }
                     if (exists) continue;
 
-                    JPanel bookItem = new JPanel(new BorderLayout());
-                    bookItem.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-                    bookItem.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-                    bookItem.setBackground(Color.WHITE);
+                    JPanel lendBookItem = new JPanel(new BorderLayout());
+                    lendBookItem.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+                    lendBookItem.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                    lendBookItem.setBackground(Color.WHITE);
 
                     JLabel bookLabel = new JLabel(title);
                     bookLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -435,25 +299,25 @@ public class BookReturnScreen extends JPanel {
 
                     deleteButton.addActionListener(event -> {
                         // 🟡 1. 테이블에서 해당 제목의 행 찾기
-                        for (int row = 0; row < bookTable.getRowCount(); row++) {
-                            String tableTitle = (String) bookTable.getValueAt(row, 2); // 제목 컬럼
+                        for (int row = 0; row < lendTable.getRowCount(); row++) {
+                            String tableTitle = (String) lendTable.getValueAt(row, 2); // 제목 컬럼
                             if (tableTitle.equals(title)) {
-                                bookTable.setValueAt(false, row, 0); // 0번 컬럼 = 체크박스
+                                lendTable.setValueAt(false, row, 0); // 0번 컬럼 = 체크박스
                                 break;
                             }
                         }
 
                         // 🟢 2. 장바구니에서 UI 삭제
-                        cartPanel.remove(bookItem);
+                        cartPanel.remove(lendBookItem);
                         cartPanel.revalidate();
                         cartPanel.repaint();
                         printCartContents();
                     });
 
-                    bookItem.add(bookLabel, BorderLayout.WEST);
-                    bookItem.add(deleteButton, BorderLayout.EAST);
+                    lendBookItem.add(bookLabel, BorderLayout.WEST);
+                    lendBookItem.add(deleteButton, BorderLayout.EAST);
 
-                    cartPanel.add(bookItem); // ★ 순서대로 추가 (맨 아래)
+                    cartPanel.add(lendBookItem); // ★ 순서대로 추가 (맨 아래)
                 }
             }
 
@@ -477,33 +341,19 @@ public class BookReturnScreen extends JPanel {
 //        bookSplitPane.setResizeWeight(0.8);
 
         // 테이블 코드 시작 🥲
-        String[] columnNames = {" ", "고유번호", "제목", "저자", "청구기호"};
+        String[] columnNames = {" ", "고유번호", "제목", "대출자", "대출일자"};
         Class<?>[] columnTypes = {Boolean.class, String.class, String.class, String.class, String.class};
 
-        if (model == null) {
-            model = new DefaultTableModel(columnNames, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    // 체크박스(0번 컬럼)와 마지막 컬럼만 편집 가능
-                    return column == 0;
-                }
+        lendTable = new JTable(model);
+        lendTable.setRowHeight(35);
+        lendTable.setSelectionForeground(lendTable.getForeground());
+        lendTable.setSelectionBackground(lendTable.getBackground());
+        lendTable.setRowSelectionAllowed(false);
+        lendTable.setFocusable(false);
+        lendTable.getTableHeader().setPreferredSize(new Dimension(0, 35));
+        lendTable.getTableHeader().setReorderingAllowed(false);
 
-                @Override
-                public Class<?> getColumnClass(int columnIndex) {
-                    return columnTypes[columnIndex];
-                }
-            };
-        }
-        bookTable = new JTable(model);
-        bookTable.setRowHeight(35);
-        bookTable.setSelectionForeground(bookTable.getForeground());
-        bookTable.setSelectionBackground(bookTable.getBackground());
-        bookTable.setRowSelectionAllowed(false);
-        bookTable.setFocusable(false);
-        bookTable.getTableHeader().setPreferredSize(new Dimension(0, 35));
-        bookTable.getTableHeader().setReorderingAllowed(false);
-
-        bookTable.getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer() {
+        lendTable.getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -517,7 +367,7 @@ public class BookReturnScreen extends JPanel {
             }
         });
 
-        bookTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        lendTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -531,13 +381,13 @@ public class BookReturnScreen extends JPanel {
             }
         });
 
-        bookTable.getColumnModel().getColumn(0).setPreferredWidth(10);
-        bookTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-        bookTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-        bookTable.getColumnModel().getColumn(3).setPreferredWidth(100);
-        bookTable.getColumnModel().getColumn(4).setPreferredWidth(170);
+        lendTable.getColumnModel().getColumn(0).setPreferredWidth(10);
+        lendTable.getColumnModel().getColumn(1).setPreferredWidth(120);
+        lendTable.getColumnModel().getColumn(2).setPreferredWidth(120);
+        lendTable.getColumnModel().getColumn(3).setPreferredWidth(120);
+        lendTable.getColumnModel().getColumn(4).setPreferredWidth(150);
 
-        JScrollPane scrollPane = new JScrollPane(bookTable);
+        JScrollPane scrollPane = new JScrollPane(lendTable);
         scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
         bookSplitPane.setLeftComponent(scrollPane);
 
@@ -630,29 +480,21 @@ public class BookReturnScreen extends JPanel {
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
         buttons.setOpaque(false);
 
-        // 대출 버튼
-        RoundedButton lendBtn = new RoundedButton("대출");
-        lendBtn.setFont(new Font("SansSerif", Font.PLAIN, 19));
-        lendBtn.setPreferredSize(new Dimension(120, 38));
-        lendBtn.setMaximumSize(lendBtn.getPreferredSize());
-        lendBtn.setMinimumSize(lendBtn.getPreferredSize());
-        lendBtn.setNewColor(new Color(10, 141, 254), new Color(50, 170, 255));
-        lendBtn.enableGradient(new Color(0x3D, 0xA5, 0xFF), new Color(0x00, 0x89, 0xFF));
-        lendBtn.setBorderColor(new Color(0x00, 0x6F, 0xFF));
-        lendBtn.setTextColor(Color.WHITE);
+        // 반납 버튼
+        RoundedButton returnBtn = new RoundedButton("반납");
+        returnBtn.setFont(new Font("SansSerif", Font.PLAIN, 19));
+        returnBtn.setPreferredSize(new Dimension(120, 38));
+        returnBtn.setMaximumSize(returnBtn.getPreferredSize());
+        returnBtn.setMinimumSize(returnBtn.getPreferredSize());
+        returnBtn.setNewColor(new Color(253, 46, 14), new Color(255, 90, 60));
+        returnBtn.enableGradient(new Color(0xFF, 0x6D, 0x6D), new Color(0xFF, 0x00, 0x00));
+        returnBtn.setBorderColor(new Color(0xFF, 0x00, 0x00));
+        returnBtn.setTextColor(Color.WHITE);
 
-        lendBtn.addActionListener(e -> {
-            String memId = BookLendingScreen1.selectedMemId;
-            String memName = BookLendingScreen1.selectedMemName;
-
-            if (memId == null || memId.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "회원이 선택되지 않았습니다.");
-                return;
-            }
-
-            // 장바구니에서 도서 제목과 bookId 리스트 추출
+        returnBtn.addActionListener(e -> {
             List<String> bookIds = new ArrayList<>();
             List<String> bookTitles = new ArrayList<>();
+            String memName = null;  // 회원 이름 저장용
 
             for (Component comp : cartPanel.getComponents()) {
                 if (comp instanceof JPanel itemPanel) {
@@ -661,13 +503,19 @@ public class BookReturnScreen extends JPanel {
                             String title = label.getText();
                             bookTitles.add(title);
 
-                            // 테이블에서 제목과 일치하는 bookId 찾기
-                            for (int i = 0; i < bookTable.getRowCount(); i++) {
-                                if (bookTable.getValueAt(i, 2).equals(title)) {
-                                    bookIds.add((String) bookTable.getValueAt(i, 1)); // bookId
+                            for (int i = 0; i < lendTable.getRowCount(); i++) {
+                                if (lendTable.getValueAt(i, 2).equals(title)) {
+                                    bookIds.add((String) lendTable.getValueAt(i, 1)); // bookId
+
+                                    // ✅ 첫 도서 기준으로 memName 가져오기
+                                    if (memName == null) {
+                                        memName = (String) lendTable.getValueAt(i, 3); // 3번 열이 memName
+                                    }
+
                                     break;
                                 }
                             }
+
                             break;
                         }
                     }
@@ -679,51 +527,39 @@ public class BookReturnScreen extends JPanel {
                 return;
             }
 
-            // 확인 다이얼로그
-            int result = JOptionPane.showConfirmDialog(
+            int confirm = JOptionPane.showConfirmDialog(
                     this,
-                    "회원: " + memName + "\n도서: " + String.join(", ", bookTitles) + "\n\n해당 도서를 대출하시겠습니까?",
-                    "도서 대출 확인",
+                    "회원: " + memName + "\n도서: " + String.join(", ", bookIds) + "\n\n해당 도서를 반납하시겠습니까?",
+                    "도서 반납 확인",
                     JOptionPane.YES_NO_OPTION
             );
 
-            if (result == JOptionPane.YES_OPTION) {
+            if (confirm == JOptionPane.YES_OPTION) {
                 try {
-                    boolean success = LendReturnHttp.lendBooks(memId, bookIds);
+                    boolean success = LendReturnHttp.returnBooks(bookIds);  // memId 제거됨!
                     if (success) {
-                        int result2 = JOptionPane.showConfirmDialog(
-                                BookReturnScreen.this,
-                                "📚 대출이 완료되었습니다!",
-                                "완료",
-                                JOptionPane.DEFAULT_OPTION
-                        );
-                        cartPanel.removeAll(); // 장바구니 초기화
+                        JOptionPane.showMessageDialog(this, "📚 반납이 완료되었습니다.");
+
+                        // ✅ 테이블 초기화 및 장바구니 비우기
+                        model.setRowCount(0);
+                        cartPanel.removeAll();
                         cartPanel.revalidate();
                         cartPanel.repaint();
-                        if (result2 == JOptionPane.OK_OPTION) {
-                            // 1. BookLendingScreen1로 전환
-                            cardLayout.show(container, "BookLendingScreen1");
 
-                            // 2. 새로고침을 위해 BookLendingScreen1을 다시 생성 or 갱신 메서드 호출
-                            Component[] components = container.getComponents();
-                            for (Component comp : components) {
-                                if (comp instanceof BookLendingScreen1) {
-                                    ((BookLendingScreen1) comp).refresh();
-                                    break;
-                                }
-                            }
-                        }
+                        // ✅ 다시 목록 불러오기
+                        loadAllBooks();
+
                     } else {
-                        JOptionPane.showMessageDialog(this, "대출이 실패했습니다.\n회원당 최대 5권까지만 대출 가능합니다.");
+                        JOptionPane.showMessageDialog(this, "반납에 실패했습니다.");
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    JOptionPane.showMessageDialog(this, "대출 중 오류가 발생했습니다.");
+                    JOptionPane.showMessageDialog(this, "반납 중 오류가 발생했습니다.");
                 }
             }
         });
 
-        buttonBox.add(lendBtn);
+        buttonBox.add(returnBtn);
 
         Box bottomBox = Box.createVerticalBox();
         bottomBox.setBorder(BorderFactory.createEmptyBorder(0, 10, 30, 10)); // 상단 여백
